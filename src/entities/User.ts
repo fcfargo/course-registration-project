@@ -3,19 +3,28 @@ import { Chat } from './Chat';
 import { Post } from './Post';
 import { SpaceRole } from './SpaceRole';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 
 @Entity('User', { schema: 'dev_classum' })
 export class User {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
   @ApiProperty({
     example: 1,
     description: '사용자 id',
   })
+  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
+  id: number;
+
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'theglory@gmail.com',
+    description: '사용자 이메일',
+  })
   @Column('varchar', { nullable: true, length: 100 })
   email: string | null;
 
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({
     example: '1q2w3e4r',
     description: '사용자 비밀번호',
@@ -23,15 +32,19 @@ export class User {
   @Column('varchar', { nullable: true, length: 200 })
   password: string | null;
 
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({
-    example: 'KangIn',
+    example: 'DongEun',
     description: '사용자 이름',
   })
   @Column('varchar', { nullable: true, length: 100 })
   first_name: string | null;
 
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({
-    example: 'Lee',
+    example: 'Moon',
     description: '사용자 성',
   })
   @Column('varchar', { nullable: true, length: 100 })
