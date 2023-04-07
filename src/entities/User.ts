@@ -54,7 +54,7 @@ export class User {
   profile_url: string | null;
 
   @Column('varchar', { nullable: true, length: 400 })
-  refresh_token: string | null;
+  refresh_token_hash: string | null;
 
   @CreateDateColumn()
   last_login: Date;
