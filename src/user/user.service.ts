@@ -98,8 +98,11 @@ export class UserService {
     // jwt 토큰 생성
     const tokens = await this.getTokens(user.id, user.email);
 
-    // refreshTokenHash 업데이트
-    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+    // refreshTokenHash 업데이트 && last_login 업데이트
+    await Promise.all([
+      this.updateRefreshTokenHash(user.id, tokens.refreshToken),
+      this.userRepository.update({ id: user.id }, { last_login: new Date() }),
+    ]);
 
     return { tokens };
   }

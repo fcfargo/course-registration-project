@@ -11,6 +11,7 @@ import { SpaceRole } from './entities/SpaceRole';
 import { Post } from './entities/Post';
 import { PostCategory } from './entities/PostCategory';
 import { Chat } from './entities/Chat';
+import { SpaceModule } from './space/space.module';
 
 const DB_PORT: any = process.env.DB_PORT;
 
@@ -33,8 +34,10 @@ const DB_PORT: any = process.env.DB_PORT;
       charset: 'utf8mb4',
       synchronize: false,
       logging: process.env.NODE_ENV === 'development',
+      timezone: '+09:00',
     }),
     UserModule,
+    SpaceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

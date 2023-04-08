@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { GetCurrentUser, GetCurrentUserId } from 'src/common/decorators';
-import { RtGuard } from 'src/common/guards';
+import { AtGuard, RtGuard } from 'src/common/guards';
 import { joinRequestDto } from './dto/join.request.dto';
 import { loginRequestDto } from './dto/login.request.dto';
 import { UserService } from './user.service';
@@ -9,8 +9,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @UseGuards(AtGuard)
   @Get()
+  @HttpCode(HttpStatus.OK)
   async getUsers() {
     return await this.userService.findAllUsers();
   }
@@ -32,6 +33,7 @@ export class UserController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refreshTokens(@GetCurrentUserId() userId: number, @GetCurrentUser() currentUser: string) {
-    return await this.userService.refreshTokens(userId, currentUser['refreshToken']);
+    const result = await this.userService.refreshTokens(userId, currentUser['refreshToken']);
+    return { success: true, data: result };
   }
 }

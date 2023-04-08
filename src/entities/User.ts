@@ -7,10 +7,6 @@ import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 
 @Entity('User', { schema: 'dev_classum' })
 export class User {
-  @ApiProperty({
-    example: 1,
-    description: '사용자 id',
-  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
