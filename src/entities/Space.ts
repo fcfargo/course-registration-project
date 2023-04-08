@@ -3,6 +3,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './Post';
 import { SpaceRole } from './SpaceRole';
+import { UserSpace } from './UserSpace';
 
 @Entity('Space', { schema: 'dev_classum' })
 export class Space {
@@ -44,4 +45,7 @@ export class Space {
 
   @OneToMany(() => SpaceRole, (spaceRole) => spaceRole.space)
   spaceRoles: SpaceRole[];
+
+  @OneToMany(() => UserSpace, (userSpace) => userSpace.space)
+  userSpaces: UserSpace[];
 }

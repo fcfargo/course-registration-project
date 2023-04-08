@@ -5,10 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Space } from 'src/entities/Space';
 import { JwtModule } from '@nestjs/jwt';
 import { SpaceRole } from 'src/entities/SpaceRole';
-import { SpaceRoleName } from 'src/entities/SpaceRoleName';
+import { UserSpace } from 'src/entities/UserSpace';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Space, SpaceRole, SpaceRoleName]), JwtModule.register({})],
+  imports: [TypeOrmModule.forFeature([Space, UserSpace, SpaceRole]), JwtModule.register({})],
   providers: [SpaceService],
   controllers: [SpaceController],
 })

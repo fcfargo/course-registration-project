@@ -29,8 +29,23 @@ export class SpaceController {
     return { success: true, data: result };
   }
 
-  //   @Delete(':spaceId')
-  //   async deleteSpace(@Body() body) {
-  //     return;
-  //   }
+  @UseGuards(AtGuard)
+  @Delete(':spaceId')
+  @HttpCode(HttpStatus.OK)
+  async deleteSpace(@GetCurrentUserId() userId: number, @Param('spaceId', ParseIntPipe) spaceId: number) {
+    await this.spaceService.destroySpaceData(userId, spaceId);
+    return { success: true, message: 'DELETE CLEAR' };
+  }
+
+  @UseGuards(AtGuard)
+  @Delete(':spaceId/:spaceRoleId')
+  @HttpCode(HttpStatus.OK)
+  async deleteSpaceRole(
+    @GetCurrentUserId() userId: number,
+    @Param('spaceId', ParseIntPipe) spaceId: number,
+    @Param('spaceRoleId', ParseIntPipe) spaceRoleId: number,
+  ) {
+    await this.spaceService.destroySpaceRoleData(userId, spaceId, spaceRoleId);
+    return { success: true, message: 'DELETE CLEAR' };
+  }
 }
