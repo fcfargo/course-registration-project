@@ -5,6 +5,8 @@ import { Post } from 'src/entities/Post';
 import { Space } from 'src/entities/Space';
 import { UserSpace } from 'src/entities/UserSpace';
 import { Repository } from 'typeorm';
+import * as AWS from 'aws-sdk';
+import { v1 as uuidv1 } from 'uuid';
 
 @Injectable()
 export class PostService {
@@ -18,7 +20,15 @@ export class PostService {
   private chatRepository: Repository<Chat>;
 
   /** 공간 게시글 생성하기 */
-  async createPostData(userId: number, spaceId: number, categoryId: number, isAnonymous: number, title: string, content: string) {
+  async createPostData(
+    file: Express.Multer.File,
+    userId: number,
+    spaceId: number,
+    categoryId: number,
+    isAnonymous: number,
+    title: string,
+    content: string,
+  ) {
     // 공간 id 확인
     const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
@@ -41,16 +51,44 @@ export class PostService {
     // 관리자가 및 개설자가 익명으로 게시글을 작성하는 경우
     if (isAnonymous && userSpace.spaceRole.role_type !== 2) throw new BadRequestException('관리자 및 개설자는 익명으로 게시글을 작성할 수 없습니다.');
 
+    // 이미지 업로드
+    const uploadedFile = await this.uploadFile(file.buffer, userId);
+
     // 게시글 생성
     const result = await this.postRepository.save({
       space_id: spaceId,
       category_id: categoryId,
       title: title,
       content: content,
+      file_url: uploadedFile?.Location || null,
       user_id: userId,
       is_anonymous: isAnonymous,
     });
-
     return result;
+  }
+
+  /** 파일 업로드 */
+  async uploadFile(body: Buffer, userId: number) {
+    AWS.config.update({
+      region: 'ap-northeast-2',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+      },
+    });
+
+    try {
+      const upload = await new AWS.S3()
+        .upload({
+          Key: `post/${userId}/${uuidv1()}`,
+          Body: body,
+          Bucket: process.env.AWS_BUCKET,
+        })
+        .promise();
+      return upload;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('이미지 업로드에 실패했습니다.');
+    }
   }
 }

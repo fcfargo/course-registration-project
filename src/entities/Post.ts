@@ -58,9 +58,6 @@ export class Post {
   is_anonymous: number | null;
 
   @Column('varchar', { nullable: true, length: 800 })
-  image_url: string | null;
-
-  @Column('varchar', { nullable: true, length: 800 })
   file_url: string | null;
 
   @CreateDateColumn()
