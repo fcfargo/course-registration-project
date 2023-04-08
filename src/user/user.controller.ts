@@ -16,7 +16,7 @@ export class UserController {
     return await this.userService.findAllUsers();
   }
 
-  @Post('singup')
+  @Post('signup')
   async createUser(@Body() body: joinRequestDto) {
     const result = await this.userService.createUserData(body.email, body.password, body.first_name, body.last_name);
     return { success: true, data: result };

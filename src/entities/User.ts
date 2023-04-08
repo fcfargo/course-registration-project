@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Chat } from './Chat';
 import { Post } from './Post';
-import { SpaceRole } from './SpaceRole';
+import { UserSpace } from './UserSpace';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 
@@ -67,6 +67,6 @@ export class User {
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
 
-  @OneToMany(() => SpaceRole, (spaceRole) => spaceRole.user)
-  spaceRoles: SpaceRole[];
+  @OneToMany(() => UserSpace, (userSpace) => userSpace.user)
+  userSpaces: UserSpace[];
 }
