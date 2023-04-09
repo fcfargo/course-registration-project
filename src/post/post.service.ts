@@ -118,7 +118,7 @@ export class PostService {
     const post = await this.postRepository.findOne({ where: { id: postId } });
     if (!post) throw new BadRequestException('존재하지 않는 게시글 정보입니다.');
 
-    // 권한(개설자, 관리자) 여부 확인
+    // 권한(개설자, 관리자, 참여자) 여부 확인
     const userSpace = await this.userSpaceRepository
       .createQueryBuilder('userSpace')
       .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
@@ -132,7 +132,7 @@ export class PostService {
     if (!userSpace || (userSpace && userSpace.spaceRole.role_type === 2 && userId !== post.user_id))
       throw new BadRequestException('관리자 혹은 작성자만 게시글 삭제가 가능합니다.');
 
-    return await this.postRepository.delete({ id: postId });
+    return await this.postRepository.softDelete({ id: postId });
   }
 
   /** 파일 업로드 */

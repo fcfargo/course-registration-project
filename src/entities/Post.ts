@@ -21,7 +21,7 @@ import { Transform } from 'class-transformer';
 @Index('space_id', ['space_id'], {})
 @Index('category_id', ['category_id'], {})
 @Index('user_id', ['user_id'], {})
-@Entity('Post', { schema: 'dev_classum' })
+@Entity('Post', { schema: process.env.DB_DATABASE })
 export class Post {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;

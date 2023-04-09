@@ -17,6 +17,75 @@ export class ChatService {
   @InjectRepository(Post)
   private postRepository: Repository<Post>;
 
+  /** 게시글 댓글 가져오기 */
+  async getChatsByPostId(userId: number, spaceId: number, postId: number) {
+    // 공간 id 확인
+    const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
+    if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
+
+    // 게시글 id 확인
+    const post = await this.postRepository.findOne({ where: { id: postId } });
+    if (!post) throw new BadRequestException('존재하지 않는 게시글입니다.');
+
+    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
+    const [userSpace, chats] = await Promise.all([
+      this.userSpaceRepository
+        .createQueryBuilder('userSpace')
+        .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+        .where('userSpace.user_id = :userId', { userId })
+        .andWhere('userSpace.space_id = :spaceId', { spaceId })
+        .innerJoin('userSpace.spaceRole', 'role')
+        .getOne(),
+      this.chatRepository
+        .createQueryBuilder('chat')
+        .where('chat.post_id = :postId', { postId })
+        .andWhere('chat.chat_id IS NULL')
+        .leftJoin('chat.chats', 'reply')
+        .leftJoin('reply.user', 'replyUser')
+        .innerJoin('chat.user', 'user')
+        .select([
+          'chat.id',
+          'chat.chat_id',
+          'chat.post_id',
+          'chat.user_id',
+          'chat.content',
+          'chat.createdAt',
+          'chat.is_anonymous',
+          'reply.id',
+          'reply.chat_id',
+          'reply.user_id',
+          'reply.content',
+          'reply.createdAt',
+          'reply.is_anonymous',
+          'user.first_name',
+          'user.last_name',
+          'replyUser.first_name',
+          'replyUser.last_name',
+        ])
+        .getMany(),
+    ]);
+
+    // 유저 정보 가리기(참여자가 아닌 경우, 참여자이면서 본인이 작성한 게시글이 아닐 경우)
+    // role_type(0: 개설자, 1 관리자, 2: 참여자)
+    return chats.map((chat) => {
+      // 익명 답글 유저 정보 가리기
+      chat.chats.map((reply) => {
+        if (reply.is_anonymous === 1) {
+          reply.user = !userSpace || (userSpace?.spaceRole.role_type === 2 && reply.user_id !== userId) ? null : reply.user;
+          return reply;
+        }
+        return reply;
+      });
+
+      // 익명 댓글 유저 정보 가리기
+      if (chat.is_anonymous === 1) {
+        chat.user = !userSpace || (userSpace?.spaceRole.role_type === 2 && chat.user_id !== userId) ? null : chat.user;
+        return chat;
+      }
+      return chat;
+    });
+  }
+
   /** 댓글 생성하기 */
   async createChatData(userId: number, spaceId: number, postId: number, content: string, isAnonymous: number) {
     // 공간 id 확인

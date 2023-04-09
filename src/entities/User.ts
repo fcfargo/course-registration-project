@@ -5,7 +5,7 @@ import { UserSpace } from './UserSpace';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 
-@Entity('User', { schema: 'dev_classum' })
+@Entity('User', { schema: process.env.DB_DATABASE })
 export class User {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;

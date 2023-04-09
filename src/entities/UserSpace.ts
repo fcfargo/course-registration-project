@@ -6,7 +6,7 @@ import { SpaceRole } from './SpaceRole';
 @Index('user_id', ['user_id'], {})
 @Index('space_id', ['space_id'], {})
 @Index('space_role_id', ['space_role_id'], {})
-@Entity('UserSpace', { schema: 'dev_classum' })
+@Entity('UserSpace', { schema: process.env.DB_DATABASE })
 export class UserSpace {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;

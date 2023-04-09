@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators';
 import { AtGuard } from 'src/common/guards';
 import { ChatService } from './chat.service';
@@ -30,6 +30,18 @@ export class ChatController {
     @Body() body: createRequestDto,
   ) {
     const result = await this.chatService.createChatReplyData(userId, spaceId, postId, chatId, body.content, body.is_anonymous);
+    return { success: true, result: result };
+  }
+
+  @UseGuards(AtGuard)
+  @Get(':spaceId/:postId')
+  @HttpCode(HttpStatus.OK)
+  async getPostChats(
+    @GetCurrentUserId() userId: number,
+    @Param('spaceId', ParseIntPipe) spaceId: number,
+    @Param('postId', ParseIntPipe) postId: number,
+  ) {
+    const result = await this.chatService.getChatsByPostId(userId, spaceId, postId);
     return { success: true, result: result };
   }
 

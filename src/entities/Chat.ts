@@ -8,7 +8,7 @@ import { User } from './User';
 @Index('post_id', ['post_id'], {})
 @Index('user_id', ['user_id'], {})
 @Index('chat_id', ['chat_id'], {})
-@Entity('Chat', { schema: 'dev_classum' })
+@Entity('Chat', { schema: process.env.DB_DATABASE })
 export class Chat {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
