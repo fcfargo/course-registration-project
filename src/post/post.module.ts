@@ -5,12 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Space } from 'src/entities/Space';
 import { Post } from 'src/entities/Post';
 import { JwtModule } from '@nestjs/jwt';
-import { Chat } from 'src/entities/Chat';
 import { UserSpace } from 'src/entities/UserSpace';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Space, Post, Chat, UserSpace]), JwtModule.register({})],
+  imports: [TypeOrmModule.forFeature([Space, Post, UserSpace]), JwtModule.register({})],
   providers: [PostService],
   controllers: [PostController],
+  exports: [PostService],
 })
 export class PostModule {}
