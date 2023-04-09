@@ -130,6 +130,10 @@ export class SpaceService {
     const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
+    // 공간 역할 id 확인
+    const spaceRole = await this.spaceRoleRepository.findOne({ where: { id: spaceRoleId } });
+    if (!spaceRole) throw new BadRequestException('존재하지 않는 공간 역할 정보입니다.');
+
     // 권한(개설자, 관리자) 여부 확인
     const userSpace = await this.userSpaceRepository
       .createQueryBuilder('userSpace')

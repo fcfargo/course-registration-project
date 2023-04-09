@@ -12,6 +12,7 @@ import { Chat } from './entities/Chat';
 import { SpaceModule } from './space/space.module';
 import { SpaceRole } from './entities/SpaceRole';
 import { UserSpace } from './entities/UserSpace';
+import { PostModule } from './post/post.module';
 
 const DB_PORT: any = process.env.DB_PORT;
 
@@ -38,6 +39,7 @@ const DB_PORT: any = process.env.DB_PORT;
     }),
     UserModule,
     SpaceModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

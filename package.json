@@ -30,6 +30,8 @@
     "@nestjs/swagger": "^5.2.1",
     "@nestjs/typeorm": "^8.0.3",
     "@supercharge/strings": "^2.0.0",
+    "@types/multer": "^1.4.7",
+    "aws-sdk": "^2.1353.0",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -43,7 +45,8 @@
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.6.2",
     "typeorm": "^0.2.41",
-    "typeorm-model-generator": "^0.4.6"
+    "typeorm-model-generator": "^0.4.6",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
