@@ -3,7 +3,7 @@ import { Space } from './Space';
 import { UserSpace } from './UserSpace';
 
 @Index('space_id', ['space_id'], {})
-@Entity('SpaceRole', { schema: 'dev_classum' })
+@Entity('SpaceRole', { schema: process.env.DB_DATABASE })
 export class SpaceRole {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;

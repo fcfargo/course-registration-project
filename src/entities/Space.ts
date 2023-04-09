@@ -5,7 +5,7 @@ import { Post } from './Post';
 import { SpaceRole } from './SpaceRole';
 import { UserSpace } from './UserSpace';
 
-@Entity('Space', { schema: 'dev_classum' })
+@Entity('Space', { schema: process.env.DB_DATABASE })
 export class Space {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;

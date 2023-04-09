@@ -51,7 +51,7 @@ export class SpaceService {
         .select(['space.id', 'space.name', 'space.logo_url', 'space.createdAt', 'space.deletedAt'])
         .where('space.id = :id', { id: createdSpace.id })
         .innerJoinAndSelect('space.userSpaces', 'users')
-        .getMany();
+        .getOne();
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
@@ -121,7 +121,7 @@ export class SpaceService {
     // 공간 참여 유저가 아닌 경우 || 공간 참여 유저지만 개설자가 아닌 경우
     if (!userSpace || (userSpace && userSpace.spaceRole.role_type !== 0)) throw new BadRequestException('개설자만 공간 삭제가 가능합니다.');
 
-    return await this.spaceRepository.delete({ id: spaceId });
+    return await this.spaceRepository.softDelete({ id: spaceId });
   }
 
   /** 역할 정보 삭제하기 */
@@ -134,7 +134,7 @@ export class SpaceService {
     const spaceRole = await this.spaceRoleRepository.findOne({ where: { id: spaceRoleId } });
     if (!spaceRole) throw new BadRequestException('존재하지 않는 공간 역할 정보입니다.');
 
-    // 권한(개설자, 관리자) 여부 확인
+    // 권한(개설자, 관리자, 참여자) 여부 확인
     const userSpace = await this.userSpaceRepository
       .createQueryBuilder('userSpace')
       .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
@@ -148,6 +148,6 @@ export class SpaceService {
     if (!userSpace || (userSpace && userSpace.spaceRole.role_type === 2))
       throw new BadRequestException('개설자 혹은 관리자만 역할 삭제가 가능합니다.');
 
-    return await this.spaceRoleRepository.delete({ id: spaceRoleId });
+    return await this.spaceRoleRepository.softDelete({ id: spaceRoleId });
   }
 }

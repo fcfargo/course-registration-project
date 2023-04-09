@@ -22,41 +22,38 @@ export class PostService {
     const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
-    // 권한(개설자, 관리자, 참여자) 여부 확인
-    const userSpace = await this.userSpaceRepository
-      .createQueryBuilder('userSpace')
-      .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
-      .where('userSpace.user_id = :userId', { userId })
-      .andWhere('userSpace.space_id = :spaceId', { spaceId })
-      .innerJoin('userSpace.spaceRole', 'role')
-      .getOne();
+    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
+    const [userSpace, posts] = await Promise.all([
+      this.userSpaceRepository
+        .createQueryBuilder('userSpace')
+        .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+        .where('userSpace.user_id = :userId', { userId })
+        .andWhere('userSpace.space_id = :spaceId', { spaceId })
+        .innerJoin('userSpace.spaceRole', 'role')
+        .getOne(),
+      this.postRepository
+        .createQueryBuilder('post')
+        .andWhere('post.space_id = :spaceId', { spaceId })
+        .innerJoin('post.user', 'user')
+        .select([
+          'post.category_id',
+          'post.user_id',
+          'post.title',
+          'post.content',
+          'post.file_url',
+          'post.createdAt',
+          'post.is_anonymous',
+          'user.first_name',
+          'user.last_name',
+        ])
+        .getMany(),
+    ]);
 
-    // 공간 참여 유저가 아닌 경우
-    if (!userSpace) throw new BadRequestException('게시글 확인 권한이 없습니다.');
-
-    // 게시글 가져오기
-    const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .andWhere('post.space_id = :spaceId', { spaceId })
-      .innerJoin('post.user', 'user')
-      .select([
-        'post.category_id',
-        'post.user_id',
-        'post.title',
-        'post.content',
-        'post.file_url',
-        'post.createdAt',
-        'post.is_anonymous',
-        'user.first_name',
-        'user.last_name',
-      ])
-      .getMany();
-
-    // 익명 게시글의 유저 정보 가리기(참여자인 경우, 본인 게시글이 아닐 경우)
+    // 익명 게시글의 유저 정보 가리기(참여자가 아닌 경우, 참여자이면서 본인이 작성한 게시글이 아닐 경우)
     // role_type(0: 개설자, 1 관리자, 2: 참여자)
     return posts.map((post) => {
       if (post.is_anonymous === 1) {
-        post.user = userSpace.spaceRole.role_type === 2 && post.user_id !== userId ? null : post.user;
+        post.user = !userSpace || (userSpace?.spaceRole.role_type === 2 && post.user_id !== userId) ? null : post.user;
         return post;
       }
       return post;
@@ -121,7 +118,7 @@ export class PostService {
     const post = await this.postRepository.findOne({ where: { id: postId } });
     if (!post) throw new BadRequestException('존재하지 않는 게시글 정보입니다.');
 
-    // 권한(개설자, 관리자) 여부 확인
+    // 권한(개설자, 관리자, 참여자) 여부 확인
     const userSpace = await this.userSpaceRepository
       .createQueryBuilder('userSpace')
       .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
@@ -135,7 +132,7 @@ export class PostService {
     if (!userSpace || (userSpace && userSpace.spaceRole.role_type === 2 && userId !== post.user_id))
       throw new BadRequestException('관리자 혹은 작성자만 게시글 삭제가 가능합니다.');
 
-    return await this.postRepository.delete({ id: postId });
+    return await this.postRepository.softDelete({ id: postId });
   }
 
   /** 파일 업로드 */

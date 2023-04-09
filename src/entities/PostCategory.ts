@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './Post';
 
-@Entity('PostCategory', { schema: 'dev_classum' })
+@Entity('PostCategory', { schema: process.env.DB_DATABASE })
 export class PostCategory {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
