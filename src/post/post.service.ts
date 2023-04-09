@@ -111,6 +111,33 @@ export class PostService {
     return result;
   }
 
+  /** 게시글 정보 삭제하기 */
+  async destroyPostData(userId: number, spaceId: number, postId: number) {
+    // 공간 id 확인
+    const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
+    if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
+
+    // 게시글 id 확인
+    const post = await this.postRepository.findOne({ where: { id: postId } });
+    if (!post) throw new BadRequestException('존재하지 않는 게시글 정보입니다.');
+
+    // 권한(개설자, 관리자) 여부 확인
+    const userSpace = await this.userSpaceRepository
+      .createQueryBuilder('userSpace')
+      .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+      .where('userSpace.user_id = :userId', { userId })
+      .andWhere('userSpace.space_id = :spaceId', { spaceId })
+      .innerJoin('userSpace.spaceRole', 'role')
+      .getOne();
+
+    // 공간 참여 유저가 아닌 경우 || 공간 참여 유저지만 작성자가 아닌 경우
+    // 0: 개설자, 1: 관리자 2: 참여자
+    if (!userSpace || (userSpace && userSpace.spaceRole.role_type === 2 && userId !== post.user_id))
+      throw new BadRequestException('관리자 혹은 작성자만 게시글 삭제가 가능합니다.');
+
+    return await this.postRepository.delete({ id: postId });
+  }
+
   /** 파일 업로드 */
   async uploadFile(body: Buffer, userId: number) {
     AWS.config.update({

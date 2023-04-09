@@ -1,4 +1,17 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetCurrentUserId } from 'src/common/decorators';
 import { AtGuard } from 'src/common/guards';
@@ -30,5 +43,15 @@ export class PostController {
     return { success: true, result: result };
   }
 
-  // 게시글 삭제하기
+  @UseGuards(AtGuard)
+  @Delete(':spaceId/:postId')
+  @HttpCode(HttpStatus.OK)
+  async deletePost(
+    @GetCurrentUserId() userId: number,
+    @Param('spaceId', ParseIntPipe) spaceId: number,
+    @Param('postId', ParseIntPipe) postId: number,
+  ) {
+    await this.postService.destroyPostData(userId, spaceId, postId);
+    return { success: true, message: 'DELETE CLEAR' };
+  }
 }
