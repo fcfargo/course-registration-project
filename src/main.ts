@@ -24,14 +24,9 @@ async function bootstrap() {
   }
 
   // swagger
-  const config = new DocumentBuilder()
-    .setTitle('Sleact API')
-    .setDescription('Sleact 개발을 위한 API 문서입니다.')
-    .setVersion('1.0')
-    .addTag('connect.sid')
-    .build();
+  const config = new DocumentBuilder().setTitle('dev_classum API').setDescription('dev_classum API 문서입니다.').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(port);
   console.log(`listening on port ${port}`);

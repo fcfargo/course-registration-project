@@ -6,7 +6,7 @@ export class PostCategory {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 100 })
+  @Column('varchar', { nullable: true, length: 100 })
   name: string | null;
 
   @OneToMany(() => Post, (post) => post.category)
