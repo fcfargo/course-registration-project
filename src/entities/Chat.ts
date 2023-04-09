@@ -1,29 +1,44 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './Post';
 import { User } from './User';
 
-@Index('post_id', ['postId'], {})
-@Index('user_id', ['userId'], {})
-@Index('chat_id', ['chatId'], {})
+@Index('post_id', ['post_id'], {})
+@Index('user_id', ['user_id'], {})
+@Index('chat_id', ['chat_id'], {})
 @Entity('Chat', { schema: 'dev_classum' })
 export class Chat {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('int', { name: 'post_id', nullable: true })
-  postId: number | null;
+  @Column('int', { nullable: true })
+  post_id: number | null;
 
-  @Column('int', { name: 'category_id', nullable: true })
-  categoryId: number | null;
+  @Column('int', { nullable: true })
+  user_id: number | null;
 
-  @Column('int', { name: 'user_id', nullable: true })
-  userId: number | null;
-
-  @Column('longtext', { name: 'content', nullable: true })
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: '좋은 글입니다.',
+    description: '댓글 내용',
+  })
+  @Column('longtext', { nullable: true })
   content: string | null;
 
-  @Column('int', { name: 'chat_id', nullable: true })
-  chatId: number | null;
+  @Column('int', { nullable: true })
+  chat_id: number | null;
+
+  @Transform(({ value }) => parseInt(value))
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 1,
+    description: '익명 댓글 여부',
+  })
+  @Column('tinyint', { nullable: true })
+  is_anonymous: number | null;
 
   @CreateDateColumn()
   createdAt: Date;

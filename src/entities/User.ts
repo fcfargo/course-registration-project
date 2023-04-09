@@ -53,9 +53,6 @@ export class User {
   refresh_token_hash: string | null;
 
   @CreateDateColumn()
-  last_login: Date;
-
-  @CreateDateColumn()
   createdAt: Date;
 
   @DeleteDateColumn()

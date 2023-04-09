@@ -1,4 +1,15 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Chat } from './Chat';
 import { Space } from './Space';
 import { PostCategory } from './PostCategory';
@@ -31,7 +42,7 @@ export class Post {
   @IsNotEmpty()
   @ApiProperty({
     example: '공지사항입니다.',
-    description: '게시글 카테고리 제목',
+    description: '게시글 제목',
   })
   @Column('text', { nullable: true })
   title: string | null;
@@ -40,7 +51,7 @@ export class Post {
   @IsNotEmpty()
   @ApiProperty({
     example: '서버 점검 예정입니다.',
-    description: '게시글 카테고리 내용',
+    description: '게시글 내용',
   })
   @Column('longtext', { nullable: true })
   content: string | null;
@@ -62,6 +73,9 @@ export class Post {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @DeleteDateColumn()
   deletedAt: Date | null;
