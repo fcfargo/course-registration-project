@@ -4,6 +4,7 @@ import { Chat } from 'src/entities/Chat';
 import { Post } from 'src/entities/Post';
 import { Space } from 'src/entities/Space';
 import { UserSpace } from 'src/entities/UserSpace';
+import { UserViewLog } from 'src/entities/UserViewLog';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -16,6 +17,8 @@ export class ChatService {
   private userSpaceRepository: Repository<UserSpace>;
   @InjectRepository(Post)
   private postRepository: Repository<Post>;
+  @InjectRepository(UserViewLog)
+  private userViewLogRepository: Repository<UserViewLog>;
 
   /** 게시글 댓글 가져오기 */
   async getChatsByPostId(userId: number, spaceId: number, postId: number) {
@@ -97,13 +100,42 @@ export class ChatService {
     if (!post) throw new BadRequestException('존재하지 않는 게시글입니다.');
 
     // 권한(개설자, 관리자, 참여자) 여부 확인
-    const userSpace = await this.userSpaceRepository
-      .createQueryBuilder('userSpace')
-      .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
-      .where('userSpace.user_id = :userId', { userId })
-      .andWhere('userSpace.space_id = :spaceId', { spaceId })
-      .innerJoin('userSpace.spaceRole', 'role')
-      .getOne();
+    const [userSpace, userChatViewLog] = await Promise.all([
+      this.userSpaceRepository
+        .createQueryBuilder('userSpace')
+        .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+        .where('userSpace.user_id = :userId', { userId })
+        .andWhere('userSpace.space_id = :spaceId', { spaceId })
+        .innerJoin('userSpace.spaceRole', 'role')
+        .getOne(),
+      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId, type_id: 1 } }),
+    ]);
+
+    if (!userChatViewLog) {
+      // chat 생성 로그 정보 생성(비동기 처리)
+      // job_id(0: 읽음, 1: 게시글 업데이트 || 댓글 추가)
+      // type_id(0: 게시글 관련 로그, 1: 댓글 관련 로그)
+      this.userViewLogRepository.save({
+        user_id: userId,
+        post_id: postId,
+        job_id: 1,
+        type_id: 1,
+      });
+    }
+
+    if (userChatViewLog && userChatViewLog?.job_id === 0) {
+      // chat 조회 로그 정보를 '읽음'으로 수정(비동기 처리)
+      this.userViewLogRepository.update(
+        {
+          user_id: userId,
+          post_id: postId,
+          type_id: 1,
+        },
+        {
+          job_id: 1,
+        },
+      );
+    }
 
     // 공간 구성원이 아닌 유저가 익명 댓글을 작성하는 경우
     // 관리자가 및 개설자가 익명 댓글을 작성하는 경우
@@ -134,13 +166,42 @@ export class ChatService {
     if (!chat) throw new BadRequestException('존재하지 않는 댓글입니다.');
 
     // 권한(개설자, 관리자, 참여자) 여부 확인
-    const userSpace = await this.userSpaceRepository
-      .createQueryBuilder('userSpace')
-      .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
-      .where('userSpace.user_id = :userId', { userId })
-      .andWhere('userSpace.space_id = :spaceId', { spaceId })
-      .innerJoin('userSpace.spaceRole', 'role')
-      .getOne();
+    const [userSpace, userChatViewLog] = await Promise.all([
+      this.userSpaceRepository
+        .createQueryBuilder('userSpace')
+        .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+        .where('userSpace.user_id = :userId', { userId })
+        .andWhere('userSpace.space_id = :spaceId', { spaceId })
+        .innerJoin('userSpace.spaceRole', 'role')
+        .getOne(),
+      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId, type_id: 1 } }),
+    ]);
+
+    if (!userChatViewLog) {
+      // chat 생성 로그 정보 생성(비동기 처리)
+      // job_id(0: 읽음, 1: 게시글 업데이트 || 댓글 추가)
+      // type_id(0: 게시글 관련 로그, 1: 댓글 관련 로그)
+      this.userViewLogRepository.save({
+        user_id: userId,
+        post_id: postId,
+        job_id: 1,
+        type_id: 1,
+      });
+    }
+
+    if (userChatViewLog && userChatViewLog?.job_id === 0) {
+      // chat 조회 로그 정보를 '읽음'으로 수정(비동기 처리)
+      this.userViewLogRepository.update(
+        {
+          user_id: userId,
+          post_id: postId,
+          type_id: 1,
+        },
+        {
+          job_id: 1,
+        },
+      );
+    }
 
     // 공간 구성원이 아닌 유저가 익명 답글을 작성하는 경우
     // 관리자가 및 개설자가 익명 답글을 작성하는 경우

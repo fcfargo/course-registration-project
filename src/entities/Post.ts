@@ -17,6 +17,7 @@ import { User } from './User';
 import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { UserViewLog } from './UserViewLog';
 
 @Index('space_id', ['space_id'], {})
 @Index('category_id', ['category_id'], {})
@@ -134,4 +135,7 @@ export class Post {
   })
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   user: User;
+
+  @OneToMany(() => UserViewLog, (userViewLog) => userViewLog.post)
+  userViewLogs: UserViewLog[];
 }

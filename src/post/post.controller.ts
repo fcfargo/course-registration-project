@@ -74,13 +74,23 @@ export class PostController {
                 first_name: 'dongEun',
                 last_name: 'moon',
               },
+              userViewLogs: [
+                {
+                  job_id: 0,
+                  type_id: 0,
+                },
+              ],
             },
           ],
         },
       },
     },
   })
-  @ApiOperation({ summary: '공간 게시글 가져오기' })
+  @ApiOperation({
+    summary: '공간 게시글 가져오기',
+    description:
+      '공간의 전체 게시글을 가져옵니다. job_id를 통해 게시글 상태를 표시합니다.(객체가 없을 경우: 게시글 읽지 않음, 0: 읽음, 1: 게시글 업데이트 || 댓글 추가), type_id는 로그 타입을 알려줍니다.(0: 게시글 관련 로그, 1: 댓글 관련 로그)',
+  })
   @Get(':spaceId')
   @HttpCode(HttpStatus.OK)
   async getPosts(@GetCurrentUserId() userId: number, @Param('spaceId', ParseIntPipe) spaceId: number) {

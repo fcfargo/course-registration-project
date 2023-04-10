@@ -4,6 +4,7 @@ import { Post } from './Post';
 import { UserSpace } from './UserSpace';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { UserViewLog } from './UserViewLog';
 
 @Entity('User', { schema: process.env.DB_DATABASE })
 export class User {
@@ -78,4 +79,7 @@ export class User {
 
   @OneToMany(() => UserSpace, (userSpace) => userSpace.user)
   userSpaces: UserSpace[];
+
+  @OneToMany(() => UserViewLog, (userViewLog) => userViewLog.user)
+  userViewLogs: UserViewLog[];
 }
