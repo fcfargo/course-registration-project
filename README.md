@@ -1,38 +1,13 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## 실행방법
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
+- 우선 아래 명령어로 패키지를 설치합니다.
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+- 환경변수 설정을 위해, `.env` 혹은 `.env.development`를 생성합니다. root 경로의 `env.development`나 `env.production` 파일을 참고하시면 됩니다.
+- 환경변수 설정이 완료되면, DB 생성을 위해, `app.module.ts` 파일의 `TypeOrmModule.forRoot({ })` 옵션에서 `synchronize: true`를 설정한 뒤 app을 실행합니다. 실행 명령어는 아래를 참고하시면 됩니다.
 
 ```bash
 # development
@@ -45,29 +20,14 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+- DB 테이블 생성이 완료되면, **PostCategory** 테이블에 데이터를 추가해주셔야 합니다. 해당 테이블은 외래키로 참조되고 있어서 데이터가 없을 경우 에러가 발생합니다. 데이터를 추가하시면, `TypeOrmModule.forRoot({ })`에서 `synchronize: fasle` 옵션을 설정합니다.
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```sql
+# 데이터 추가
+INSERT INTO PostCategory VALUES(1, '공지')
+INSERT INTO PostCategory VALUES(2, '질문')
 ```
 
-## Support
+- 쉘에서 실행 명령어를 입력하여 다시 app을 실행합니다. **http://localhost:{PORT}/api** 로 접속하시면 swagger api 문서 확인이 가능합니다.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- DB 모델링 전체 구조를 확인하시려면 root 경로의 **CLASSUM_ERD.png** 파일을 참고하시면 됩니다.
