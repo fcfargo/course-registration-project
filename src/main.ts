@@ -33,8 +33,9 @@ async function bootstrap() {
         description: 'Enter token',
         name: 'Authorization',
         type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'bearer',
+        scheme: 'Bearer',
+        bearerFormat: 'Bearer',
+        in: 'Header',
       },
       'Authorization',
     )

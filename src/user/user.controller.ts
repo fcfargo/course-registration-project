@@ -17,7 +17,7 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: '성공',
-    type: Array,
+    schema: { properties: { success: { type: 'boolean', example: true }, result: { type: 'array', example: '{success: true, result: [{}]}' } } },
   })
   @ApiHeader({
     name: 'Authorization',

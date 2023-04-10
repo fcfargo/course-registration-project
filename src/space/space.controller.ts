@@ -14,6 +14,7 @@ import { SpaceService } from './space.service';
   description: 'access_token',
   required: true,
 })
+@ApiBearerAuth('Authorization')
 @UseGuards(AtGuard)
 @Controller('api/spaces')
 export class SpaceController {
@@ -25,7 +26,6 @@ export class SpaceController {
     description: '성공',
     type: SpaceResponseDto,
   })
-  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: '유저 공간 개설' })
   @Post()
   async createSpace(@Body() body: CreateSpaceRequestDto, @GetCurrentUserId() userId: number) {
@@ -39,7 +39,6 @@ export class SpaceController {
     description: '성공',
     type: joinSpaceResponseDto,
   })
-  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: '유저 공간 참여' })
   @Post(':spaceId/:spaceRoleId')
   @HttpCode(HttpStatus.OK)
@@ -59,7 +58,6 @@ export class SpaceController {
     description: '성공',
     schema: { properties: { success: { type: 'boolean', example: true }, message: { type: 'string', example: 'DELETE CLEAR' } } },
   })
-  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: '유저 공간 삭제' })
   @Delete(':spaceId')
   @HttpCode(HttpStatus.OK)
@@ -74,7 +72,6 @@ export class SpaceController {
     description: '성공',
     schema: { properties: { success: { type: 'boolean', example: true }, message: { type: 'string', example: 'DELETE CLEAR' } } },
   })
-  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: '유저 공간 역할 삭제' })
   @Delete(':spaceId/:spaceRoleId')
   @HttpCode(HttpStatus.OK)
