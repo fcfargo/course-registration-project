@@ -55,7 +55,30 @@ export class PostController {
   @ApiResponse({
     status: 200,
     description: '성공',
-    schema: { properties: { success: { type: 'boolean', example: true }, result: { type: 'array', example: '{success: true, result: [{}]}' } } },
+    schema: {
+      properties: {
+        success: { type: 'boolean', example: true },
+        result: {
+          type: 'array',
+          example: [
+            {
+              id: 1,
+              category_id: 2,
+              title: 'question1',
+              content: 'are you a student?',
+              user_id: 2,
+              is_anonymous: 1,
+              file_url: 'https://blog-dev-fcfargo.s3.ap-northeast-2.amazonaws.com/post/2/1df03c30-d78c-11ed-9613-556f037b82db',
+              createdAt: '2023-04-10T10:40:31.819Z',
+              user: {
+                first_name: 'dongEun',
+                last_name: 'moon',
+              },
+            },
+          ],
+        },
+      },
+    },
   })
   @ApiOperation({ summary: '공간 게시글 가져오기' })
   @Get(':spaceId')
@@ -73,7 +96,7 @@ export class PostController {
       properties: {
         success: { type: 'boolean', example: true },
         result: {
-          type: 'array',
+          type: 'object',
           example: {
             id: 1,
             category_id: 2,

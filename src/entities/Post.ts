@@ -75,6 +75,7 @@ export class Post {
   @ApiProperty({
     example: 1,
     description: '익명글 여부',
+    required: true,
   })
   @Column('tinyint', { nullable: true })
   is_anonymous: number | null;

@@ -1,4 +1,4 @@
 import { PickType } from '@nestjs/swagger';
 import { Chat } from 'src/entities/Chat';
 
-export class createRequestDto extends PickType(Chat, ['is_anonymous', 'content']) {}
+export class CreateChatRequestDto extends PickType(Chat, ['is_anonymous', 'content']) {}

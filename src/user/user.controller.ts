@@ -17,7 +17,26 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: '성공',
-    schema: { properties: { success: { type: 'boolean', example: true }, result: { type: 'array', example: '{success: true, result: [{}]}' } } },
+    schema: {
+      properties: {
+        success: { type: 'boolean', example: true },
+        result: {
+          type: 'array',
+          example: [
+            {
+              first_name: 'youngHun',
+              last_name: 'kim',
+              profile_url: null,
+            },
+            {
+              first_name: 'dongEun',
+              last_name: 'moon',
+              profile_url: null,
+            },
+          ],
+        },
+      },
+    },
   })
   @ApiHeader({
     name: 'Authorization',
@@ -30,7 +49,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async getUsers() {
     const result = await this.userService.findAllUsers();
-    return { success: true, data: result };
+    return { success: true, result: result };
   }
 
   @ApiResponse({ status: 500, description: '서버 에러' })
