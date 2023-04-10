@@ -88,7 +88,7 @@ export class PostController {
   @ApiOperation({
     summary: '공간 게시글 가져오기',
     description:
-      '공간의 전체 게시글을 가져옵니다. job_id(값이 없을 경우: 게시글 읽지 않음, 0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가) ',
+      '공간의 전체 게시글을 가져옵니다. job_id를 통해 게시글 상태를 표시합니다.(값이 없을 경우: 게시글 읽지 않음, 0: 게시글 읽음, 1: 게시글 수정, 2: 게시글 댓글 추가) ',
   })
   @Get(':spaceId')
   @HttpCode(HttpStatus.OK)
