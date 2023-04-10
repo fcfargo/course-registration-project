@@ -36,6 +36,7 @@ export class PostService {
         .andWhere('post.space_id = :spaceId', { spaceId })
         .innerJoin('post.user', 'user')
         .select([
+          'post.id',
           'post.category_id',
           'post.user_id',
           'post.title',
@@ -58,6 +59,48 @@ export class PostService {
       }
       return post;
     });
+  }
+
+  /** 게시글 가져오기 */
+  async getPostByPostId(userId: number, spaceId: number, postId: number) {
+    // 공간 id 확인
+    const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
+    if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
+
+    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
+    const [userSpace, post] = await Promise.all([
+      this.userSpaceRepository
+        .createQueryBuilder('userSpace')
+        .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
+        .where('userSpace.user_id = :userId', { userId })
+        .andWhere('userSpace.space_id = :spaceId', { spaceId })
+        .innerJoin('userSpace.spaceRole', 'role')
+        .getOne(),
+      this.postRepository
+        .createQueryBuilder('post')
+        .andWhere('post.id = :postId', { postId })
+        .innerJoin('post.user', 'user')
+        .select([
+          'post.id',
+          'post.category_id',
+          'post.user_id',
+          'post.title',
+          'post.content',
+          'post.file_url',
+          'post.createdAt',
+          'post.is_anonymous',
+          'user.first_name',
+          'user.last_name',
+        ])
+        .getOne(),
+    ]);
+
+    // 익명 게시글의 유저 정보 가리기(참여자가 아닌 경우, 참여자이면서 본인이 작성한 게시글이 아닐 경우)
+    // role_type(0: 개설자, 1 관리자, 2: 참여자)
+    if (post?.is_anonymous === 1) {
+      post.user = !userSpace || (userSpace?.spaceRole.role_type === 2 && post.user_id !== userId) ? null : post.user;
+    }
+    return post;
   }
 
   /** 공간 게시글 생성하기 */

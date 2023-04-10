@@ -24,7 +24,22 @@ async function bootstrap() {
   }
 
   // swagger
-  const config = new DocumentBuilder().setTitle('dev_classum API').setDescription('dev_classum API 문서입니다.').setVersion('1.0').build();
+  const config = new DocumentBuilder()
+    .setTitle('dev_classum API')
+    .setDescription('dev_classum API 문서입니다.')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        description: 'Enter token',
+        name: 'Authorization',
+        type: 'http',
+        scheme: 'Bearer',
+        bearerFormat: 'Bearer',
+        in: 'Header',
+      },
+      'Authorization',
+    )
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 

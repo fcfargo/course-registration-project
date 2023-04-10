@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from './Post';
 import { SpaceRole } from './SpaceRole';
@@ -7,6 +7,11 @@ import { UserSpace } from './UserSpace';
 
 @Entity('Space', { schema: process.env.DB_DATABASE })
 export class Space {
+  @IsNumber()
+  @ApiProperty({
+    example: 1,
+    description: '공간 id',
+  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
@@ -15,6 +20,7 @@ export class Space {
   @ApiProperty({
     example: '웹 개발',
     description: '공간 이름',
+    required: true,
   })
   @Column('varchar', { nullable: true, length: 100 })
   name: string | null;
@@ -34,9 +40,19 @@ export class Space {
   @Column('varchar', { nullable: true, length: 10 })
   user_code: string | null;
 
+  @IsDateString()
+  @ApiProperty({
+    example: '2023-04-10T09:08:50.517Z',
+    description: '생성 시간',
+  })
   @CreateDateColumn()
   createdAt: Date;
 
+  @IsDateString()
+  @ApiProperty({
+    example: '2023-04-10T09:08:50.517Z',
+    description: '삭제 시간',
+  })
   @DeleteDateColumn()
   deletedAt: Date | null;
 
