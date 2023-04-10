@@ -27,6 +27,7 @@ export class PostService {
 
     // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
     // job_id(0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가)
+    // type_id(0: 게시글 관련 로그, 1: 댓글 관련 로그)
     const [userSpace, posts] = await Promise.all([
       this.userSpaceRepository
         .createQueryBuilder('userSpace')
@@ -54,6 +55,7 @@ export class PostService {
           'user.first_name',
           'user.last_name',
           'log.job_id',
+          'log.type_id',
         ])
         .getMany(),
     ]);
@@ -76,7 +78,7 @@ export class PostService {
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
     // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기 && post 조회 로그 정보 가져오기
-    const [userSpace, post, userViewLog] = await Promise.all([
+    const [userSpace, post, userPostViewLog, userChatViewLog] = await Promise.all([
       this.userSpaceRepository
         .createQueryBuilder('userSpace')
         .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
@@ -101,17 +103,58 @@ export class PostService {
           'user.last_name',
         ])
         .getOne(),
-      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId } }),
+      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId, type_id: 0 } }),
+      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId, type_id: 1 } }),
     ]);
 
-    if (!userViewLog) {
-      // post 조회 로그 정보 생성
-      // job_id(0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가)
-      await this.userViewLogRepository.save({
+    if (!userPostViewLog) {
+      // post 조회 로그 정보 생성(비동기 처리)
+      // job_id(0: 읽음, 1: 게시글 업데이트 || 댓글 추가)
+      // type_id(0: 게시글 관련 로그, 1: 댓글 관련 로그)
+      this.userViewLogRepository.save({
         user_id: userId,
         post_id: postId,
         job_id: 0,
+        type_id: 0,
       });
+    }
+
+    if (!userChatViewLog) {
+      // chat 조회 로그 정보 생성(비동기 처리)
+      this.userViewLogRepository.save({
+        user_id: userId,
+        post_id: postId,
+        job_id: 0,
+        type_id: 1,
+      });
+    }
+
+    if (userPostViewLog && userPostViewLog?.job_id !== 0) {
+      // post 조회 로그 정보를 '읽음'으로 수정(비동기 처리)
+      this.userViewLogRepository.update(
+        {
+          user_id: userId,
+          post_id: postId,
+          type_id: 0,
+        },
+        {
+          job_id: 0,
+        },
+      );
+    }
+
+    if (userChatViewLog && userChatViewLog?.job_id !== 0) {
+      // chat 조회 로그 정보를 '읽음'으로 수정(비동기 처리)
+      this.userViewLogRepository.update(
+        {
+          user_id: userId,
+          post_id: postId,
+          type_id: 1,
+        },
+        {
+          job_id: 0,
+        },
+      );
     }
 
     // 익명 게시글의 유저 정보 가리기(참여자가 아닌 경우, 참여자이면서 본인이 작성한 게시글이 아닐 경우)

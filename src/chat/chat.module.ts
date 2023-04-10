@@ -7,9 +7,10 @@ import { Chat } from 'src/entities/Chat';
 import { JwtModule } from '@nestjs/jwt';
 import { UserSpace } from 'src/entities/UserSpace';
 import { Space } from 'src/entities/Space';
+import { UserViewLog } from 'src/entities/UserViewLog';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, Chat, UserSpace, Space]), JwtModule.register({})],
+  imports: [TypeOrmModule.forFeature([Post, Chat, UserSpace, Space, UserViewLog]), JwtModule.register({})],
   providers: [ChatService],
   controllers: [ChatController],
 })

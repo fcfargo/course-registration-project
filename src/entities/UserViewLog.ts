@@ -21,6 +21,9 @@ export class UserViewLog {
   @Column('int', { nullable: true })
   job_id: number | null;
 
+  @Column('int', { nullable: true })
+  type_id: number | null;
+
   @DeleteDateColumn()
   deletedAt: Date | null;
 
