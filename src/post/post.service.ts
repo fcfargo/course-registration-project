@@ -6,6 +6,7 @@ import { UserSpace } from 'src/entities/UserSpace';
 import { Repository } from 'typeorm';
 import * as AWS from 'aws-sdk';
 import { v1 as uuidv1 } from 'uuid';
+import { UserViewLog } from 'src/entities/UserViewLog';
 
 @Injectable()
 export class PostService {
@@ -15,6 +16,8 @@ export class PostService {
   private userSpaceRepository: Repository<UserSpace>;
   @InjectRepository(Post)
   private postRepository: Repository<Post>;
+  @InjectRepository(UserViewLog)
+  private userViewLogRepository: Repository<UserViewLog>;
 
   /** 공간 게시글 가져오기 */
   async getPostsBySpaceId(userId: number, spaceId: number) {
@@ -67,8 +70,8 @@ export class PostService {
     const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
-    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
-    const [userSpace, post] = await Promise.all([
+    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기 && 유저 조회 로그 정보 가져오기
+    const [userSpace, post, userViewLog] = await Promise.all([
       this.userSpaceRepository
         .createQueryBuilder('userSpace')
         .select(['userSpace.id', 'userSpace.user_id', 'userSpace.space_id', 'role.role_type'])
@@ -93,7 +96,18 @@ export class PostService {
           'user.last_name',
         ])
         .getOne(),
+      this.userViewLogRepository.findOne({ where: { user_id: userId, post_id: postId } }),
     ]);
+
+    if (!userViewLog) {
+      // 유저 조회 로그 정보 생성
+      // job_id(0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가)
+      await this.userViewLogRepository.save({
+        user_id: userId,
+        post_id: postId,
+        job_id: 0,
+      });
+    }
 
     // 익명 게시글의 유저 정보 가리기(참여자가 아닌 경우, 참여자이면서 본인이 작성한 게시글이 아닐 경우)
     // role_type(0: 개설자, 1 관리자, 2: 참여자)
