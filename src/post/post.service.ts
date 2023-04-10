@@ -26,6 +26,7 @@ export class PostService {
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
     // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기
+    // job_id(0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가)
     const [userSpace, posts] = await Promise.all([
       this.userSpaceRepository
         .createQueryBuilder('userSpace')
@@ -38,6 +39,9 @@ export class PostService {
         .createQueryBuilder('post')
         .andWhere('post.space_id = :spaceId', { spaceId })
         .innerJoin('post.user', 'user')
+        .leftJoin('post.userViewLogs', 'log', 'log.user_id = :userId', {
+          userId,
+        })
         .select([
           'post.id',
           'post.category_id',
@@ -49,6 +53,7 @@ export class PostService {
           'post.is_anonymous',
           'user.first_name',
           'user.last_name',
+          'log.job_id',
         ])
         .getMany(),
     ]);
@@ -70,7 +75,7 @@ export class PostService {
     const space = await this.spaceRepository.findOne({ where: { id: spaceId } });
     if (!space) throw new BadRequestException('존재하지 않는 공간 정보입니다.');
 
-    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기 && 유저 조회 로그 정보 가져오기
+    // 권한(개설자, 관리자, 참여자) 여부 확인 && 게시글 가져오기 && post 조회 로그 정보 가져오기
     const [userSpace, post, userViewLog] = await Promise.all([
       this.userSpaceRepository
         .createQueryBuilder('userSpace')
@@ -100,7 +105,7 @@ export class PostService {
     ]);
 
     if (!userViewLog) {
-      // 유저 조회 로그 정보 생성
+      // post 조회 로그 정보 생성
       // job_id(0: 게시글 읽음, 1: 게시글 업데이트, 2: 게시글 댓글 추가)
       await this.userViewLogRepository.save({
         user_id: userId,
