@@ -69,6 +69,7 @@ export class UserController {
   @ApiHeader({
     name: 'Authorization',
     description: 'refresh_token',
+    required: true,
   })
   @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'jwt tokens 재발급' })

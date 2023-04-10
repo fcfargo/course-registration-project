@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Space } from './Space';
 import { UserSpace } from './UserSpace';
 
@@ -16,6 +16,9 @@ export class SpaceRole {
 
   @Column('int', { nullable: true })
   space_id: number | null;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 
   @ManyToOne(() => Space, (space) => space.spaceRoles, {
     onDelete: 'CASCADE',
